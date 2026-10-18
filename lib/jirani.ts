@@ -87,6 +87,20 @@ export interface TimelineItem {
   text: string
 }
 
+export interface Day {
+  date: string
+  weekday: number
+  /** Minutes after local midnight; null if she wasn't up at home. */
+  firstActivity: number | null
+  nightBathroom: number
+  outings: number
+  visitors: number
+  indoorCount: number
+  away: boolean
+  /** Whether the weekly report compares this day. */
+  counted: boolean
+}
+
 export class JiraniError extends Error {}
 
 function base(): string {
@@ -119,6 +133,7 @@ async function get<T>(path: string): Promise<T> {
 export const getState = () => get<JiraniState>('api/state')
 export const getReport = () => get<WeeklyReport>('api/report')
 export const getTimeline = () => get<{ date: string; items: TimelineItem[] }>('api/timeline')
+export const getDays = () => get<{ timeZone: string; residentName: string; days: Day[] }>('api/days')
 
 /** Call one of Jirani's MCP tools (stateless Streamable HTTP, JSON or SSE response). */
 export async function callTool<T = Record<string, unknown>>(
