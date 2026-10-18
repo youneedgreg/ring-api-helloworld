@@ -79,6 +79,14 @@ export interface Plan {
   createdBy: 'resident' | 'family'
 }
 
+export interface TimelineItem {
+  at: string
+  /** Local "7:12am". */
+  time: string
+  role: 'frontDoor' | 'fridge' | 'bathroom' | 'medicine' | 'doorbell'
+  text: string
+}
+
 export class JiraniError extends Error {}
 
 function base(): string {
@@ -110,6 +118,7 @@ async function get<T>(path: string): Promise<T> {
 
 export const getState = () => get<JiraniState>('api/state')
 export const getReport = () => get<WeeklyReport>('api/report')
+export const getTimeline = () => get<{ date: string; items: TimelineItem[] }>('api/timeline')
 
 /** Call one of Jirani's MCP tools (stateless Streamable HTTP, JSON or SSE response). */
 export async function callTool<T = Record<string, unknown>>(
