@@ -1,16 +1,20 @@
-import { getReport, getState, type JiraniState, type WeeklyReport } from '@/lib/jirani'
+import { getDays, getReport, getState, type Day, type JiraniState, type WeeklyReport } from '@/lib/jirani'
+import { RhythmCharts } from './RhythmCharts'
 import { Card, JiraniUnavailable, PageTitle } from '../components/ui'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Week() {
-  let report: WeeklyReport, s: JiraniState
+  let report: WeeklyReport, s: JiraniState, days: Day[]
   try {
-    ;[report, s] = await Promise.all([getReport(), getState()])
+    ;[report, s, days] = await Promise.all([getReport(), getState(), getDays().then((d) => d.days)])
   } catch (e) {
     return <JiraniUnavailable error={e} />
   }
   const flagged = report.metrics.filter((m) => m.flagged)
+  const night = report.metrics.find((m) => m.key === 'nightBathroom')
+  // The same 7 days the report calls "this week": the last ones it compares.
+  const recentDates = days.filter((d) => d.counted).slice(-report.recentDays).map((d) => d.date)
 
   return (
     <>
@@ -21,6 +25,15 @@ export default async function Week() {
       <Card tone={flagged.length ? 'paused' : 'calm'}>
         <p className="font-semibold">{report.headline}</p>
         {report.suggestion && <p className="mt-2 text-sm">{report.suggestion}</p>}
+      </Card>
+
+      <Card title="Last 4 weeks">
+        {night && (
+          <p className="mb-3 text-sm text-slate-600">
+            Night-time bathroom trips: about {night.recent} a night this week, {night.prior} a night in the earlier weeks.
+          </p>
+        )}
+        <RhythmCharts days={days} recentDates={recentDates} />
       </Card>
 
       <Card title="Rhythm">

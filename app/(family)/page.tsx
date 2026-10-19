@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { getState, when, type JiraniState } from '@/lib/jirani'
+import { getState, getTimeline, when, type JiraniState, type TimelineItem } from '@/lib/jirani'
 import { Card, JiraniUnavailable, LevelBadge, PageTitle } from './components/ui'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Today() {
-  let s: JiraniState
+  let s: JiraniState, timeline: TimelineItem[]
   try {
-    s = await getState()
+    ;[s, timeline] = await Promise.all([getState(), getTimeline().then((t) => t.items)])
   } catch (e) {
     return <JiraniUnavailable error={e} />
   }
@@ -64,6 +64,22 @@ export default async function Today() {
           <Fact label="Visitors" value={String(f.visitors)} />
         </dl>
         {f.activeContext.length > 0 && <p className="mt-3 text-sm text-slate-600">Plans today: {f.activeContext.join('; ')}</p>}
+      </Card>
+
+      <Card title="Today's timeline">
+        {timeline.length === 0 ? (
+          <p className="text-sm text-slate-600">No activity recorded yet today.</p>
+        ) : (
+          <ol className="space-y-1.5">
+            {timeline.map((t) => (
+              <li key={t.at + t.text} className="flex gap-3 text-sm">
+                <span className="w-16 shrink-0 text-right tabular-nums text-slate-500">{t.time}</span>
+                <span>{t.text}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+        <p className="mt-3 text-xs text-slate-500">From Ring door and contact sensors. No video.</p>
       </Card>
 
       {s.suppressed.length > 0 && (
