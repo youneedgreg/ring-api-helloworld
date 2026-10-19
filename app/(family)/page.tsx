@@ -48,6 +48,14 @@ export default async function Today() {
         )
       )}
 
+      <Link
+        href="/talk"
+        className="mb-4 flex min-h-12 items-center justify-between rounded-2xl border border-teal-200 bg-white px-4 py-3 text-sm font-semibold text-teal-800 shadow-sm"
+      >
+        <span>Ask Jirani by voice, in English or Spanish</span>
+        <span aria-hidden>→</span>
+      </Link>
+
       <Card title="So far today">
         <ul className="space-y-1 text-[15px] leading-relaxed">
           {/* The open alert already has its own card above. */}

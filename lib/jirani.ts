@@ -135,6 +135,36 @@ export const getReport = () => get<WeeklyReport>('api/report')
 export const getTimeline = () => get<{ date: string; items: TimelineItem[] }>('api/timeline')
 export const getDays = () => get<{ timeZone: string; residentName: string; days: Day[] }>('api/days')
 
+export type Speaker = 'resident' | 'family'
+export type Lang = 'en' | 'es'
+
+export interface AskAnswer {
+  answer: string
+  /** The MCP tools the agent called, in order. */
+  toolCalls: { name: string; input: unknown }[]
+}
+
+/**
+ * Ask Jirani's agent (Amazon Nova on Bedrock). JIRANI_ASK_URL is the deployed AskUrl;
+ * locally `pnpm mcp` serves the same POST /ask next to its API. Each call costs a
+ * fraction of a cent, so only signed-in people should reach it (D2 phase 2).
+ */
+export async function askJirani(question: string, speaker: Speaker, lang: Lang): Promise<AskAnswer> {
+  const url = process.env.JIRANI_ASK_URL ?? `${base()}ask`
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ question, as: speaker, lang }),
+    cache: 'no-store',
+  }).catch(() => {
+    throw new JiraniError("Can't reach Jirani's agent right now.")
+  })
+  if (r.status === 401) throw new JiraniError('Jirani refused the API token. Check JIRANI_API_TOKEN.')
+  if (r.status === 404) throw new JiraniError('This Jirani has no agent. Run the latest `pnpm mcp`, or set JIRANI_ASK_URL.')
+  if (!r.ok) throw new JiraniError('Jirani could not answer right now. Try again in a minute.')
+  return r.json() as Promise<AskAnswer>
+}
+
 /** Call one of Jirani's MCP tools (stateless Streamable HTTP, JSON or SSE response). */
 export async function callTool<T = Record<string, unknown>>(
   name: string,
