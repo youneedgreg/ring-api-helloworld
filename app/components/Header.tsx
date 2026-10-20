@@ -1,5 +1,7 @@
 'use client'
 
+import { UserButton } from '@clerk/nextjs'
+
 interface HeaderProps {
   connected: boolean
   enabledCount: number
@@ -13,18 +15,21 @@ export function Header({ connected, enabledCount, simpleMode }: HeaderProps) {
         <span className="text-xl">📡</span>
         <h1 className="text-lg font-bold text-white">Live Detection Dashboard</h1>
       </div>
-      {!simpleMode && (
-        <div className="flex items-center gap-3">
-          <span className={`text-xs px-2 py-1 rounded-full ${connected ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-            {connected ? '● Connected' : '○ Disconnected'}
-          </span>
-          {enabledCount > 0 && (
-            <span className="text-xs px-2 py-1 rounded-full bg-purple-900 text-purple-300">
-              {enabledCount} processor{enabledCount > 1 ? 's' : ''} active
+      <div className="flex items-center gap-3">
+        {!simpleMode && (
+          <>
+            <span className={`text-xs px-2 py-1 rounded-full ${connected ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
+              {connected ? '● Connected' : '○ Disconnected'}
             </span>
-          )}
-        </div>
-      )}
+            {enabledCount > 0 && (
+              <span className="text-xs px-2 py-1 rounded-full bg-purple-900 text-purple-300">
+                {enabledCount} processor{enabledCount > 1 ? 's' : ''} active
+              </span>
+            )}
+          </>
+        )}
+        <UserButton />
+      </div>
     </header>
   )
 }
