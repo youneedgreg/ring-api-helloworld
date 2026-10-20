@@ -192,8 +192,14 @@ Do not set both `RING_ACCESS_TOKEN` and `RING_REFRESH_TOKEN` — the app will sh
 
 ## Environment Variables
 
+Every page and API route needs a signed-in [Clerk](https://clerk.com/docs/nextjs/getting-started/quickstart) user; sign-up is invite-only. The one exception is `POST /api/webhook`, which Ring calls without a session, so set `RING_WEBHOOK_SECRET` wherever the app is public.
+
 | Variable | Description | Required |
 |----------|-------------|----------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key | Yes |
+| `CLERK_SECRET_KEY` | Clerk secret key (server only) | Yes |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Sign-in page, `/sign-in` | Yes |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Sign-up page, `/sign-up` | Yes |
 | `RING_ACCESS_TOKEN` | Access token from the [Playground](https://developer.amazon.com/ring/console/playground) | Yes (if not using refresh token) |
 | `RING_REFRESH_TOKEN` | OAuth refresh token from [account linking](https://developer.amazon.com/docs/ring/authentication.html) | Yes (if not using access token) |
 | `RING_CLIENT_ID` | OAuth client ID from [app registration](https://developer.amazon.com/docs/ring/app-registration.html) | Yes (only with refresh token) |
