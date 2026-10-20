@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { UserButton } from '@clerk/nextjs'
 import { getState } from '@/lib/jirani'
 import { JiraniUnavailable } from '../(family)/components/ui'
 import { VoiceClient } from './VoiceClient'
@@ -25,9 +26,12 @@ export default async function Talk() {
             <p className="text-lg font-semibold tracking-tight text-teal-800">Jirani</p>
             <p className="text-xs text-slate-500">talk to the neighbour who notices</p>
           </div>
-          <Link href="/" className="text-sm font-medium text-teal-800 underline underline-offset-4">
-            Dashboard
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-sm font-medium text-teal-800 underline underline-offset-4">
+              Dashboard
+            </Link>
+            <UserButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-xl px-4 pb-16 pt-4">

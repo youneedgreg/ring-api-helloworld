@@ -1,3 +1,4 @@
+import { UserButton } from '@clerk/nextjs'
 import { Nav } from './components/Nav'
 
 /** Amina's dashboard: light, phone-first, one column, tabs at the bottom where a thumb reaches. */
@@ -10,11 +11,14 @@ export default function FamilyLayout({ children }: { children: React.ReactNode }
             <p className="text-lg font-semibold tracking-tight text-teal-800">Jirani</p>
             <p className="text-xs text-slate-500">the neighbour who notices</p>
           </div>
-          <p className="text-right text-xs text-slate-500">
-            Ring sensors only
-            <br />
-            never video by default
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-right text-xs text-slate-500">
+              Ring sensors only
+              <br />
+              never video by default
+            </p>
+            <UserButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-xl px-4 pb-28 pt-4">{children}</main>
