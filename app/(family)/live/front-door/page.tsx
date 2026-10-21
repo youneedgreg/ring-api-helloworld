@@ -1,3 +1,4 @@
+import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import { getState, type JiraniState } from '@/lib/jirani'
 import { liveMode, liveViewGate, SESSION_SECONDS, type Gate } from '@/lib/live'
@@ -8,6 +9,8 @@ export const dynamic = 'force-dynamic'
 
 /** The page Jirani's view_front_door tool links to. Closed unless Jirani says it may open. */
 export default async function FrontDoor() {
+  // Also enforced by the middleware; checked here too because this page can open a camera.
+  await auth.protect()
   let s: JiraniState
   let gate: Gate
   try {

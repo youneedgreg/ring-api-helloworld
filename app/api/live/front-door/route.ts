@@ -1,8 +1,13 @@
+import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { JiraniError } from '@/lib/jirani'
 import { liveMode, liveViewGate, RingLiveError, startSession, stopSession } from '@/lib/live'
 
 export const dynamic = 'force-dynamic'
+
+// The middleware already requires sign-in; this is the camera, so check again here.
+const signedOut = async () => !(await auth()).userId
+const SIGN_IN = { error: 'Sign in required' }
 
 function failure(e: unknown) {
   if (e instanceof RingLiveError) return NextResponse.json({ error: e.message }, { status: e.status >= 400 && e.status < 600 ? e.status : 502 })
@@ -13,6 +18,7 @@ function failure(e: unknown) {
 
 /** Start a live view: Jirani's consent and level check first, then Ring's WHEP. Body: { sdpOffer }. */
 export async function POST(request: NextRequest) {
+  if (await signedOut()) return NextResponse.json(SIGN_IN, { status: 401 })
   try {
     const { sdpOffer } = (await request.json().catch(() => ({}))) as { sdpOffer?: unknown }
     if (typeof sdpOffer !== 'string' || !sdpOffer.startsWith('v=0')) {
@@ -32,6 +38,7 @@ export async function POST(request: NextRequest) {
 
 /** Close a live view. Body: { sessionUrl }. Closing is always allowed. */
 export async function DELETE(request: NextRequest) {
+  if (await signedOut()) return NextResponse.json(SIGN_IN, { status: 401 })
   try {
     const { sessionUrl } = (await request.json().catch(() => ({}))) as { sessionUrl?: unknown }
     if (typeof sessionUrl !== 'string') return NextResponse.json({ error: 'Missing sessionUrl.' }, { status: 400 })
