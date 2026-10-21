@@ -3,7 +3,7 @@
 // token is read from the environment here and must never reach the browser.
 
 export interface LadderAction {
-  type: 'log' | 'checkin_resident' | 'notify_contact' | 'offer_live_view' | 'suggest_emergency' | 'all_clear'
+  type: 'log' | 'chime_resident' | 'checkin_resident' | 'notify_contact' | 'offer_live_view' | 'suggest_emergency' | 'all_clear'
   to?: string
   message: string
 }
