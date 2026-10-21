@@ -75,13 +75,18 @@ export async function startSession(sdpOffer: string): Promise<{ sdpAnswer: strin
 export async function stopSession(sessionUrl: string): Promise<void> {
   if (!isWhepSessionUrl(sessionUrl)) throw new RingLiveError(400, 'Not a Ring live-view session.')
   const token = await getAccessToken()
-  await fetch(sessionUrl, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+  const r = await fetch(sessionUrl, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+  // 404: Ring already ended it (its time limit), which is what we wanted anyway.
+  if (!r.ok && r.status !== 404) throw new RingLiveError(r.status, `Ring answered ${r.status} when closing the live view.`)
 }
 
 export function isWhepSessionUrl(url: string): boolean {
   try {
     const u = new URL(url)
-    return u.origin === RING_API && /^\/v1\/devices\/[^/]+\/media\/streaming\/whep\/sessions\/[^/]+$/.test(u.pathname) && !u.search
+    // Ring's real Location adds ?location=ava1.ring.whep.location.… (not in its docs); allow only that.
+    const params = Array.from(u.searchParams.keys())
+    const query = params.length === 0 || (params.length === 1 && /^[A-Za-z0-9._-]+$/.test(u.searchParams.get('location') ?? ''))
+    return u.origin === RING_API && /^\/v1\/devices\/[^/]+\/media\/streaming\/whep\/sessions\/[^/]+$/.test(u.pathname) && query
   } catch {
     return false
   }
