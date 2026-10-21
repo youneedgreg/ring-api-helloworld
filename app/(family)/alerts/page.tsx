@@ -46,15 +46,16 @@ export default async function Alerts() {
           {why[i] && <p className="mb-3 text-[15px] leading-relaxed">{why[i]}</p>}
 
           <ol className="space-y-2 border-l-2 border-stone-300 pl-4">
-            {e.history.map((step) => (
-              <li key={step.at + step.level}>
+            {e.history.map((step, k) => (
+              // Two steps can share a minute and a level (an alert closed in the minute it climbed).
+              <li key={k}>
                 <p className="text-xs font-semibold text-slate-600">
                   {when(step.at, tz, { date: false })} · level {step.level}
                   {step.note ? ` · ${step.note}` : ''}
                 </p>
                 <ul className="text-sm">
-                  {step.actions.map((a) => (
-                    <li key={a.type + (a.to ?? '')}>
+                  {step.actions.map((a, j) => (
+                    <li key={j}>
                       {ACTION_WORDS[a.type]}
                       {a.to ? ` → ${recipient(a.to, name)}` : ''}
                     </li>
