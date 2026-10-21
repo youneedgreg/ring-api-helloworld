@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { callTool, getState, when, type JiraniState } from '@/lib/jirani'
 import { ACTION_WORDS, Card, JiraniUnavailable, LevelBadge, PageTitle, recipient } from '../components/ui'
 
@@ -62,6 +63,15 @@ export default async function Alerts() {
               </li>
             ))}
           </ol>
+          {e.status === 'open' && e.level >= 3 && e.history.some((step) => step.actions.some((a) => a.type === 'offer_live_view')) && (
+            // Jirani offered the camera (level 3 and her consent); the page checks again before anything opens.
+            <Link
+              href="/live/front-door"
+              className="mt-3 inline-block rounded-full bg-teal-700 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Look at the front door
+            </Link>
+          )}
           {e.resolution && (
             <p className="mt-3 text-sm text-teal-900">
               Resolved {when(e.resolution.at, tz, { date: false })} by {e.resolution.by}: “{e.resolution.note}”
