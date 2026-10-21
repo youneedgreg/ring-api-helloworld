@@ -36,6 +36,7 @@ export function JiraniUnavailable({ error }: { error: unknown }) {
 
 export const ACTION_WORDS: Record<LadderAction['type'], string> = {
   log: 'Noted',
+  chime_resident: 'Soft tone on her Chime (simulated)',
   checkin_resident: 'Check-in (voice + TV)',
   notify_contact: 'Message',
   offer_live_view: 'Front-door camera offered',
