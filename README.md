@@ -190,6 +190,26 @@ Do not set both `RING_ACCESS_TOKEN` and `RING_REFRESH_TOKEN` — the app will sh
 
 ---
 
+## Jirani: front-door live view
+
+`/live/front-door` is the page [Jirani](https://github.com/youneedgreg/Jirani)'s `view_front_door` tool links to. Unlike the sample's live view at `/sample`, it opens only when Jirani allows it. Like the other family pages, it needs `JIRANI_API_URL` and `JIRANI_API_TOKEN`.
+
+- **Consent and level check:** the page and `POST /api/live/front-door` both ask Jirani's `view_front_door` on the server. The camera opens only during an open level 3+ alert, and only if the resident agreed in advance. Otherwise the page shows Jirani's reason and no video. On the Alerts page, an open alert that offered the camera links here.
+- **Live mode** (a Ring token is set): WebRTC WHEP as Ring documents it: video only and `recvonly`, the offer sent after ICE gathering, and the session closed after 28 seconds (Ring's limit is 30 on battery devices, 60 wired). "Look again" asks Jirani again. The token and device ID never reach the browser, and closing a session only accepts Ring's WHEP session URLs. The video is labelled "Ring Developer Playground · simulated stream".
+- **Replay mode** (no token, the default on the public demo): a 23-second clip recorded once from the Playground's simulated stream through this page (`public/live/playground-replay.mp4`), labelled as a replay. Nobody needs a token to see the feature.
+
+To try live mode locally, start Jirani from its repo with `JIRANI_DEMO=1 pnpm mcp` and stage an open level 3 alert with `pnpm aws:story --local thursday` then `pnpm aws:story --local monday`. Copy a token from the [Playground](https://developer.amazon.com/ring/console/playground) and add it to `.env.local` from the clipboard:
+
+```bash
+printf '\nRING_ACCESS_TOKEN=%s\n' "$(pbpaste | tr -d '[:space:]')" >> .env.local
+```
+
+Restart `npm run dev` and open `/live/front-door`. Playground tokens last 30 minutes; delete the line afterwards to go back to replay mode.
+
+**Tested on 21 Oct 2026 against the Ring Developer Playground:** the stream played at 1280×720, and the 28-second close, "Look again", Close, and the refusal once the alert was resolved all worked. Ring's session URL ends in `?location=…`, which its docs don't show.
+
+---
+
 ## Environment Variables
 
 Every page and API route needs a signed-in [Clerk](https://clerk.com/docs/nextjs/getting-started/quickstart) user; sign-up is invite-only. The one exception is `POST /api/webhook`, which Ring calls without a session, so set `RING_WEBHOOK_SECRET` wherever the app is public.
@@ -206,6 +226,7 @@ Every page and API route needs a signed-in [Clerk](https://clerk.com/docs/nextjs
 | `RING_CLIENT_SECRET` | OAuth client secret from [app registration](https://developer.amazon.com/docs/ring/app-registration.html) | Yes (only with refresh token) |
 | `NEXT_PUBLIC_RING_DEVICE_ID` | Device ID (skips auto-discovery) | No |
 | `NEXT_PUBLIC_RING_DEVICE_NAME` | Display name for the device | No |
+| `RING_FRONT_DOOR_DEVICE_ID` | Ring device for `/live/front-door` (default: the account's first device) | No |
 | `RING_WEBHOOK_SECRET` | Bearer token for [webhook auth](https://developer.amazon.com/docs/ring/notifications.html) | No |
 
 ---
